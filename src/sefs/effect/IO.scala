@@ -1,31 +1,33 @@
 package sefs
+package effect
 
 import scalaz._
 import Scalaz._
 
-package object effect {
+sealed trait IO[T] {
+  private[effect] def perform: T
+  
+  def flatMap[B](f: T => IO[B]) = IOMonad.bind(this, f)
+  def flatMap[B,S](f: T => AIO[B,S]) = io2aio[T,S](this) flatMap f // helps mixed for comprehension
+  def map[B](f: T => B) = flatMap(f andThen (x => IOMonad pure x))
+}
 
-  trait IOExecution
+object IOMonad extends Monad[IO] {
+  override def pure[A](a: => A): IO[A] = new IO[A] {
+    override def perform = a
+  }
+  override def bind[A, B](a: IO[A], f: A => IO[B]): IO[B] = new IO[B] {
+    override def perform = f(a.perform).perform
+  }
+}
 
-  sealed trait IO[T] {
-    private[effect] def perform: T
-  }
+/** UNSAFE: implement in libraries with side-effects (i.e. console, networking) */ 
+trait IOImplementor {
+  /** allowed to have side-effects */
+  protected def io[T](f: => T): IO[T] = IOMonad.pure(f)
+}
 
-  implicit object IOMonad extends Monad[IO] {
-    override def pure[A](a: => A): IO[A] = new IO[A] {
-      override def perform = a
-    }
-    override def bind[A, B](a: IO[A], f: A => IO[B]): IO[B] = new IO[B] {
-      override def perform = f(a.perform).perform
-    }
-  }
-
-  trait IOImplementor {
-    protected def io[T](f: => T): IO[T] = IOMonad.pure(f)
-  }
-  trait IOPerformer {
-    protected def perform[A](io: IO[A]): A = {
-      io.perform
-    }
-  }
+/** UNSAFE: only implement in special libraries */
+trait IOPerformer {
+  protected def perform[A](io: IO[A]): A = io.perform
 }
