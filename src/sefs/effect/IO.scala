@@ -6,10 +6,6 @@ import Scalaz._
 
 sealed trait IO[T] {
   private[effect] def perform: T
-  
-  def flatMap[B](f: T => IO[B]) = IOMonad.bind(this, f)
-  def flatMap[B,S](f: T => AIO[B,S]) = io2aio[T,S](this) flatMap f // helps mixed for comprehension
-  def map[B](f: T => B) = flatMap(f andThen (x => IOMonad pure x))
 }
 
 object IOMonad extends Monad[IO] {
@@ -21,7 +17,7 @@ object IOMonad extends Monad[IO] {
   }
 }
 
-/** UNSAFE: implement in libraries with side-effects (i.e. console, networking) */ 
+/** UNSAFE: implement in libraries with side-effects (i.e. console, networking) */
 trait IOImplementor {
   /** allowed to have side-effects */
   protected def io[T](f: => T): IO[T] = IOMonad.pure(f)

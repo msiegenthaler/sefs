@@ -21,5 +21,4 @@ object CpsIOTest extends App with IOPerformer {
   println("Result=" + result)
   println("Upper Result=" + result.toUpperCase)
   println("****")
-
 }

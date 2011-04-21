@@ -9,18 +9,18 @@ import scalaz.concurrent._
 sealed trait Process {
   def !(msg: Any): IO[Unit]
 }
-
-sealed trait PS {
-  private[process] val process: ProcessInternal
-}
+//
+//sealed trait PS {
+//  private[process] val process: ProcessInternal
+//}
 private object MsgBox extends MessageBoxContainer[Any]
 import MsgBox._
 private trait ProcessInternal extends Process {
   val msgbox: MessageBox
 }
 
-object Process extends AIOPerformer[PS] with AIOImplementor[PS] with IOImplementor {
-  def spawn[A](body: AIO[A, PS])(implicit executor: Strategy): IO[Process] = io {
+object Process extends AIOPerformer with AIOImplementor with IOImplementor {
+  def spawn[A](body: AIO[A])(implicit executor: Strategy): IO[Process] = io {
     val p = new ProcessImpl(executor)
     p.before
     perform(body, p.initial, (_: A, _) => p.after)
@@ -38,12 +38,12 @@ object Process extends AIOPerformer[PS] with AIOImplementor[PS] with IOImplement
   }
 
   //TODO do we need that?
-  val noop = AIOMonad.pure[Unit, PS](())
+  val noop = AIOMonad.pure(())
 
   def processesRunning: IO[Boolean] = io(running.get == 0)
 
   def waitUntilAllProcessesTerminate: IO[Unit] = io {
-  	while (running.get > 0) Thread.sleep(100)
+    while (running.get > 0) Thread.sleep(100)
   }
 
   private val running = new java.util.concurrent.atomic.AtomicLong

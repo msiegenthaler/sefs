@@ -6,10 +6,13 @@ import io.ConsoleIO._
 import process._
 import Process._
 import util._
+import scalaz._
+import Scalaz._
 
 object ProcessTest extends ProcessApplication {
+
   override protected def mainProcess = {
-    for {
+    val x: AIO[Any] = for {
       _ <- println("Welcome")
       p <- spawn {
         for {
@@ -18,7 +21,7 @@ object ProcessTest extends ProcessApplication {
           m <- receive {
             case s: String => s
           }
-          _ <- Thread.sleep(1000)
+          _ <- wrapIO(Thread.sleep(1000))
           _ <- println("Child " + s + " got message " + m)
           _ <- println("Byte from " + s)
         } yield ()
@@ -27,6 +30,7 @@ object ProcessTest extends ProcessApplication {
       _ <- p ! "Hi"
       _ <- println("Main done")
       _ <- noop
-    } yield ()
+    } yield ().asInstanceOf[Any]
+    x
   }
 }

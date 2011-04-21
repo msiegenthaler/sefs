@@ -14,5 +14,5 @@ trait ProcessApplication extends IOApplication {
   }
 
   protected implicit val executor = scalaz.concurrent.Strategy.Naive
-  protected def mainProcess: AIO[Any, PS]
+  protected def mainProcess: AIO[Any]
 }

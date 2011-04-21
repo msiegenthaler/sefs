@@ -6,7 +6,7 @@ import scala.util.continuations._
 package object cps {
 
   class IOCps[A] private[cps] (v: IO[A]) {
-    def value: A @cps[IO[Any]] = shift(c => v flatMap c)
+    def value: A @cps[IO[Any]] = shift(c => IOMonad.bind(v, c) )
     def exec = value
   }
   
