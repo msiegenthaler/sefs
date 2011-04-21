@@ -4,9 +4,10 @@ package test
 import effect.IOPerformer
 import cps._
 import io._
+import effect._
 
 object CpsIOTest extends App with IOPerformer {
-  val o = asIO {
+  val o: IO[String] = asMonad {
     ConsoleIO.println("One").exec
     ConsoleIO.println("Two").exec
     if (1 > 2)

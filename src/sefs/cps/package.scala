@@ -2,23 +2,20 @@ package sefs
 
 import effect.{ IO, IOMonad }
 import scala.util.continuations._
+import scalaz._
 
 package object cps {
 
-  class IOCps[A] private[cps] (v: IO[A]) {
-    def value: A @cps[IO[Any]] = shift(c => IOMonad.bind(v, c) )
-    def exec = value
+  class MonadCps[M[_], A] private[cps] (v: M[A]) {
+    def value(implicit m: Monad[M]): A @cps[M[Any]] = shift(c => m.bind(v, c))
+    def exec(implicit m: Monad[M]) = value(m)
   }
   
-  implicit def io2cps[A](a: IO[A]) = new IOCps(a)
-
-  /** Converts a CPS-IO to a regular IO */
-  def asIO[A](cps: => A @cps[IO[Any]]): IO[A] = {
-    val ctx = reify[A, IO[Any], IO[Any]] {
-      cps
-    }
-    val r = ctx.foreach(x => IOMonad.pure(x))
-    r.asInstanceOf[IO[A]]
+  implicit def m2cps[M[_],A](a: M[A]) = new MonadCps[M,A](a)
+  
+  def asMonad[M[_],A](cps: => A @cps[M[Any]])(implicit m: Monad[M]): M[A] = {
+    val ctx = reify[A,M[Any],M[Any]] { cps }
+    val r = ctx.foreach(x => m.pure(x))
+    r.asInstanceOf[M[A]]
   }
-
 }
