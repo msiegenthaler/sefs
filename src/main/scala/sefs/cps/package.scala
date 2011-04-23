@@ -9,6 +9,7 @@ package object cps {
     def value(implicit m: Monad[M]): A @cps[M[Any]] = shift { c: (A => M[Any]) =>
       m.bind(v, c)
     }
+    def values(implicit m: Monad[M]) = value(m)
     def exec(implicit m: Monad[M]) = value(m)
   }
 
