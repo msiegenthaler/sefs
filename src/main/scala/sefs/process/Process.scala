@@ -40,8 +40,8 @@ object Process extends `package`.PIOPerformer with `package`.PIOImplementor with
     p
   }
 
-  def receive[A](pf: PartialFunction[Any, A]) = aio { (s: PS, cont: (A, PS) => Unit) =>
-    val c = pf andThen (a => cont(a, s))
+  def receive[A](pf: PartialFunction[Any, PIO[A]]) = aio { (s: PS, cont: (A, PS) => Unit) =>
+    val c = pf andThen { a => perform(a, s, cont) }
     s.process.msgbox setCapture c
   }
   //TODO receive within and receive no wait

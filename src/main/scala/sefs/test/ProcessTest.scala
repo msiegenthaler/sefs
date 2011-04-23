@@ -17,7 +17,7 @@ object ProcessTest extends ProcessApplication {
           s <- self
           _ <- println("Hi from child " + s + " on thread " + Thread.currentThread.getName)
           m <- receive {
-            case s: String => s
+            case s: String => v(s)
           }
           _ <- println("Child " + s + " got message " + m)
           _ <- delay(3000)
