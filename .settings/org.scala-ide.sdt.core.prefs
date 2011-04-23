@@ -1,4 +1,4 @@
-#Thu Apr 21 22:06:12 CEST 2011
+#Thu Apr 21 23:39:01 CEST 2011
 P=continuations\:enable
 Xcheck-null=false
 Xcheckinit=true
@@ -7,7 +7,7 @@ Xelide-below=-2147483648
 Xexperimental=false
 Xfatal-warnings=false
 Xfuture=false
-Xlog-implicits=true
+Xlog-implicits=false
 Xmigration=false
 Xno-uescape=false
 Xpluginsdir=misc/scala-devel/plugins
@@ -34,5 +34,5 @@ no-specialization=false
 optimise=false
 scala.compiler.useProjectSettings=true
 target=jvm-1.5
-unchecked=true
+unchecked=false
 verbose=false
