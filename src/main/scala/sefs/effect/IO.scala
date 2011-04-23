@@ -5,6 +5,11 @@ import scalaz.Monad
 
 sealed trait IO[T] {
   private[effect] def perform: T
+
+  //To resolve ambiguity
+  def flatMap[B](f: T => IO[B]) = IOMonad.bind(this, f)
+  def flatMap[B,S <: AIOExecution](f: T => AIO[B,S]) = AIOMonad.bind(AIOMonad.fromIO[T,S](this), f)
+  def map[B](f: T => B) = flatMap(f andThen (x => IOMonad.pure(x)))
 }
 
 object IOMonad extends Monad[IO] {

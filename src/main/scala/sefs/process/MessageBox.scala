@@ -1,7 +1,6 @@
 package sefs
 package process
 
-import scalaz.concurrent._
 import java.util.concurrent.atomic._
 
 /**
@@ -91,7 +90,7 @@ private trait MessageBoxContainer[T] {
   /**
    * Message box for many senders and a single consumer.
    */
-  class MessageBox(checkExec: Strategy) {
+  class MessageBox(checkExec: ProcessExecutor) {
     //Actions to execute. Modified and read by all threads
     private val pending = new AtomicReference[Actions](Actions(Nil, Captures0, false, false, false))
     //State of the message box. Only accessed by the checker-threads (not-concurrent)

@@ -4,10 +4,17 @@ package process
 import effect._
 import scalaz._
 import Scalaz._
-import scalaz.concurrent._
+
+sealed trait PS extends AIOExecution {
+  private[process] val process: ProcessInternal
+}
 
 sealed trait Process {
   def !(msg: Any): IO[Unit]
+}
+
+trait ProcessExecutor {
+  def apply(f: => Unit): Unit
 }
 
 private object MsgBox extends MessageBoxContainer[Any]
@@ -16,11 +23,17 @@ private trait ProcessInternal extends Process {
   val msgbox: MessageBox
 }
 
-object Process extends AIOPerformer with AIOImplementor with IOImplementor {
-  def spawn[A](body: AIO[A])(implicit executor: Strategy): IO[Process] = io {
+object Process extends PIOPerformer with PIOImplementor with IOImplementor {
+  def spawn[A](body: PIO[A])(implicit executor: ProcessExecutor): IO[Process] = io {
     val p = new ProcessImpl(executor)
-    p.before
-    executor(perform(body, p.initial, (_: A, _) => p.after))
+    running.incrementAndGet
+    val after = (_: A, _: PS) => {
+      running.decrementAndGet
+      ()
+    }
+    executor {
+      perform(body, p.initial, after)
+    }
     p
   }
 
@@ -34,24 +47,24 @@ object Process extends AIOPerformer with AIOImplementor with IOImplementor {
     cont(s.process, s)
   }
 
-  //TODO do we need that?
-  val noop = AIOMonad.pure(())
+  val noop = PIOMonad.pure(())
 
   def processesRunning: IO[Boolean] = io(running.get == 0)
 
   def waitUntilAllProcessesTerminate: IO[Unit] = io {
-    while (running.get > 0) Thread.sleep(100)
+    while (running.get > 0) Thread.sleep(333)
   }
 
   private val running = new java.util.concurrent.atomic.AtomicLong
   private val pidDealer = new java.util.concurrent.atomic.AtomicLong
-  private class ProcessImpl(exec: Strategy) extends ProcessInternal {
+  private class ProcessImpl(exec: ProcessExecutor) extends ProcessInternal {
     val pid = pidDealer.incrementAndGet
     override val msgbox = new MessageBox(exec)
     override def !(msg: Any) = io(msgbox enqueue msg)
-    def initial = new PS { override val process = ProcessImpl.this }
-    def before: Unit = running.incrementAndGet
-    def after: Unit = running.decrementAndGet
+    def initial = new PS {
+      override val process = ProcessImpl.this
+      override def execute(f: => Unit) = exec(f)
+    }
     override def toString = "<" + pid + ">"
   }
 }

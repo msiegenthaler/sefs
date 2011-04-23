@@ -1,18 +1,31 @@
 package sefs
 package util
 
-import effect._
+import effect.IO
 import process._
 import Process._
+import java.util.concurrent._
 
 trait ProcessApplication extends IOApplication {
+  protected val cpus = Runtime.getRuntime.availableProcessors
+  protected val pool = Executors.newFixedThreadPool(cpus, new ThreadFactory {
+    private val counter = new atomic.AtomicInteger
+    override def newThread(r: Runnable) = {
+      val t = new Thread(r, "processExecutor-" + counter.incrementAndGet)
+      t.setDaemon(true)
+      t
+    }
+  })
+  protected implicit def executor: ProcessExecutor = new ProcessExecutor {
+    override def apply(f: => Unit) = pool.submit(new Runnable { override def run = f })
+  }
+
   override protected final def body = {
     for {
-      _ <- spawn(mainProcess)
+      p <- spawn(mainProcess)
       _ <- waitUntilAllProcessesTerminate
     } yield ()
   }
 
-  protected implicit val executor = scalaz.concurrent.Strategy.DefaultExecutorService
-  protected def mainProcess: AIO[Any]
+  protected def mainProcess: PIO[Any]
 }
