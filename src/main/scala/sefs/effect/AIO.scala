@@ -17,7 +17,7 @@ sealed trait AIO[T, S <: AIOExecution] {
 
 trait AIOImplementor {
   protected def aioValue[A, S <: AIOExecution](v: => A): AIO[A, S] = AIOMonad.pure[A, S](v)
-  protected def aio[A, S <: AIOExecution](f: (A => Unit) => Unit) = new AIO[A, S] {
+  protected def aio[A, S <: AIOExecution](f: (A => Unit) => Unit): AIO[A, S] = new AIO[A, S] {
     override def perform(s: S, c: (A, S) => Unit) = {
       val c2: A => Unit = a => c(a, s)
       f(c2)
@@ -55,12 +55,7 @@ trait KindOfAIO[S <: AIOExecution] {
     override def bind[A, B](a: KAIO[A], f: A => KAIO[B]) = AIOMonad.bind(a, f)
   }
 
-  def io2aio[A](io: IO[A]): KAIO[A] = new KAIO[A] {
-    override def perform(s: S, contFun: (A, S) => Unit) = {
-      val a = io.perform
-      contFun(a, s)
-    }
-  }
+  def io2aio[A](io: IO[A]): KAIO[A] = AIOMonad.fromIO[A,S](io)
 
   /**
    * UNSAFE: only implement in special libraries.

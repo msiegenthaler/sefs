@@ -15,7 +15,7 @@ object Delay extends AIOImplementor {
   private val executor = new ScheduledThreadPoolExecutor(5, threadFactory)
 
   //TODO rewrite to use Duration
-  def delay[S <: AIOExecution](ms: Long) = aio[Unit,S] { f =>
+  def delay[S <: AIOExecution](ms: Long) = aio[Unit, S] { f =>
     val r = new Runnable { override def run = f(()) }
     executor.schedule(r, ms, TimeUnit.MILLISECONDS)
   }

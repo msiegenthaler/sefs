@@ -8,6 +8,9 @@ import Scalaz._
 sealed trait PS extends AIOExecution {
   private[process] val process: ProcessInternal
 }
+object PS {
+  type AIO_PS[T] = AIO[T,PS]
+}
 
 sealed trait Process {
   def !(msg: Any): IO[Unit]
@@ -23,7 +26,7 @@ private trait ProcessInternal extends Process {
   val msgbox: MessageBox
 }
 
-object Process extends PIOPerformer with PIOImplementor with IOImplementor {
+object Process extends `package`.PIOPerformer with `package`.PIOImplementor with IOImplementor {
   def spawn[A](body: PIO[A])(implicit executor: ProcessExecutor): IO[Process] = io {
     val p = new ProcessImpl(executor)
     running.incrementAndGet

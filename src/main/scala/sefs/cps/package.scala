@@ -6,7 +6,9 @@ import scalaz._
 package object cps {
 
   class MonadCps[M[_], A] protected[cps] (v: M[A]) {
-    def value(implicit m: Monad[M]): A @cps[M[Any]] = shift(c => m.bind(v, c))
+    def value(implicit m: Monad[M]): A @cps[M[Any]] = shift { c: (A => M[Any]) =>
+      m.bind(v, c)
+    }
     def exec(implicit m: Monad[M]) = value(m)
   }
 

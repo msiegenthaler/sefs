@@ -1,8 +1,8 @@
 import sbt._
 
 class SefsProject(info: ProjectInfo) extends DefaultProject(info) with AutoCompilerPlugins {
-  val continuations = compilerPlugin("org.scala-lang.plugins" % "continuations" % "2.8.1")
-  override def compileOptions = CompileOption("-P:continuations:enable") :: super.compileOptions.toList
+  val cont = compilerPlugin("org.scala-lang.plugins" % "continuations" % "2.8.1")
+  override def compileOptions = super.compileOptions ++ compileOptions("-P:continuations:enable")
 
   override def packageSrcJar = defaultJarPath("-sources.jar")
   val sourceArtifact = Artifact.sources(artifactID)
