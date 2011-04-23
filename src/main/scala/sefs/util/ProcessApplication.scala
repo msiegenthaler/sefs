@@ -27,5 +27,5 @@ trait ProcessApplication extends IOApplication {
     } yield ()
   }
 
-  protected def mainProcess: PIO[Any]
+  protected def mainProcess: PIO[Unit]
 }

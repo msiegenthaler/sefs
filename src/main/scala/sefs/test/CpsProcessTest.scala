@@ -10,9 +10,7 @@ import sefs.io.Delay._
 
 object CpsProcessTest extends ProcessApplication {
 
-  override def mainProcess = m map (x => "".asInstanceOf[Any])
-
-  def m = asProcess {
+  override def mainProcess = asProcess {
     println("Start").exec
     val c = spawn {
       val c = self
