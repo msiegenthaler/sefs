@@ -2,7 +2,7 @@ package sefs
 package test
 
 import effect.IOPerformer
-import cps._
+import cps.GenericCps._
 import io._
 import effect._
 import util._

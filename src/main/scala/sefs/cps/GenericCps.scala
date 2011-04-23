@@ -1,10 +1,10 @@
 package sefs
+package cps
 
-import scala.util.continuations._
 import scalaz._
+import scala.util.continuations._
 
-package object cps {
-
+object GenericCps {
   class MonadCps[M[_], A] protected[cps] (v: M[A]) {
     def value(implicit m: Monad[M]): A @cps[M[Any]] = shift { c: (A => M[Any]) =>
       m.bind(v, c)

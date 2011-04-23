@@ -4,7 +4,7 @@ package test
 import effect._
 import process._
 import util.ProcessApplication
-import sefs.process.cps._
+import sefs.cps.ProcessCps._
 import sefs.io.ConsoleIO._
 import sefs.io.Delay._
 

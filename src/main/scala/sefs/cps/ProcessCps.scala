@@ -1,13 +1,12 @@
 package sefs
-package process
+package cps
 
 import effect._
-import sefs.cps.SpecificCps
 import scala.util.continuations._
-import sefs.process._
+import process._
 import Process._
 
-package object cps extends SpecificCps[PS.AIO_PS] {
+object ProcessCps extends SpecificCps[PS.AIO_PS] {
   protected override val monad = PIOMonad
 
   implicit def io2cps[A](a: IO[A]) = sm2cps(io2pio(a))
