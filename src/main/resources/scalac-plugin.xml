@@ -1,0 +1,4 @@
+<plugin>
+  <name>iopreserver</name>
+  <classname>sefs.effect.plugin.IoPreserver</classname>
+</plugin>

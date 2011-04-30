@@ -2,7 +2,13 @@ import sbt._
 
 class SefsProject(info: ProjectInfo) extends DefaultProject(info) with AutoCompilerPlugins {
   val cont = compilerPlugin("org.scala-lang.plugins" % "continuations" % "2.9.0.RC1")
-  override def compileOptions = super.compileOptions ++ compileOptions("-P:continuations:enable")
+  override def compileOptions = CompileOption("-P:continuations:enable") ::
+//    CompileOption("-Xplugin:/Users/ms/scala/eclipse-workspace/sefs/plugin/iopreserver.jar") ::
+//    CompileOption("-Xpluginsdir2:\"/Users/ms/scala/eclipse-workspace/sefs/plugin\"") ::
+    CompileOption("-Xplugin-require:iopreserver") ::
+    CompileOption("-Xplugin-list") ::
+//    CompileOption("-Ybrowse:1") ::
+    super.compileOptions
 
   override def packageSrcJar = defaultJarPath("-sources.jar")
   val sourceArtifact = Artifact.sources(artifactID)

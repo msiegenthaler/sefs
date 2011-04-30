@@ -1,4 +1,4 @@
-#Thu Apr 21 23:39:01 CEST 2011
+#Sat Apr 23 22:54:20 CEST 2011
 P=continuations\:enable
 Xcheck-null=false
 Xcheckinit=true
@@ -10,7 +10,9 @@ Xfuture=false
 Xlog-implicits=false
 Xmigration=false
 Xno-uescape=false
-Xpluginsdir=misc/scala-devel/plugins
+Xplugin=
+Xplugin-require=
+Xpluginsdir=
 Xwarninit=false
 Ybuild-manager-debug=false
 Yclosure-elim=false
